@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"api/database"
+	"api/config"
 	"api/models"
 )
 
@@ -11,7 +11,7 @@ func GetArticle(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var article models.Article
 
-	if err := database.DBConn.First(&article, id).Error; err != nil {
+	if err := config.DB.First(&article, id).Error; err != nil {
 		return c.Status(500).SendString("Internal server error.")
 	}
 	c.JSON(article)
@@ -22,7 +22,7 @@ func GetArticle(c *fiber.Ctx) error {
 func GetArticles(c *fiber.Ctx) error {
 	var articles []models.Article
 
-	if err := database.DBConn.Find(&articles).Error; err != nil {
+	if err := config.DB.Find(&articles).Error; err != nil {
 		return c.Status(500).SendString("Internal server error.")
 	}
 	c.JSON(articles)
@@ -36,7 +36,7 @@ func AddArticle(c *fiber.Ctx) error {
 	if err := c.BodyParser(&article); err != nil {
 		return c.Status(503).SendString("Failing during parsing.")
 	}
-	if err := database.DBConn.Create(&article).Error; err != nil {
+	if err := config.DB.Create(&article).Error; err != nil {
 		return c.Status(500).SendString("Internal server error.")
 	}
 	c.JSON(article)
@@ -48,13 +48,13 @@ func UpdateArticle(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var article models.Article
 
-	if err := database.DBConn.First(&article, id).Error; err != nil {
+	if err := config.DB.First(&article, id).Error; err != nil {
 		return c.Status(500).SendString("Internal server error.")
 	}
 	if err := c.BodyParser(&article); err != nil {
 		return c.Status(503).SendString("Failing during parsing.")
 	}
-	database.DBConn.Save(&article)
+	config.DB.Save(&article)
 	c.JSON(article)
 	return c.SendStatus(200)
 }
@@ -64,10 +64,10 @@ func DeleteArticle(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var article models.Article
 
-	if err := database.DBConn.First(&article, id).Error; err != nil {
+	if err := config.DB.First(&article, id).Error; err != nil {
 		return c.Status(500).SendString("Internal server error.")
 	}
-	database.DBConn.Delete(&article)
+	config.DB.Delete(&article)
 	return c.SendStatus(200)
 }
 
